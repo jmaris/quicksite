@@ -3,7 +3,9 @@
 #Variables
 #Name of ZFS Pool
 POOL_NAME="Sites"
+# Name of FPM pool dir
 FPM_DIR="/home/jmaris/testing/pool"
+# Name of NGINX sites-enabled directory
 NGINX_DIR="/home/jmaris/testing/nginx"
 
 if id -u $1 >/dev/null 2>&1; then
