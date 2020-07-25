@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+#Variables
+#Name of ZFS Pool
+POOL_NAME="Sites"
+FPM_DIR="/home/jmaris/testing/pool"
+NGINX_DIR="/home/jmaris/testing/nginx"
+
+if id -u $1 >/dev/null 2>&1; then
+    echo user exists
+    exit 0
+fi
+
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root" 
+   exit 1
+fi
+
+if [[ -z $1 ]]; then
+   echo "usage: newsite user domain.com"
+   exit 1
+fi
+if [[ -z $2 ]]; then
+   echo "usage: newsite user domain.com"
+   exit 1
+fi
+
+echo "WARNING: This script will now undertake the following actions:"
+echo "1. Create a zfs dataset in the /Sites pool, named $1"
+echo "2. Create a new system user named $1, without privileges"
+echo "3. Create a new php-fpm socket running under $1"
+echo "4. Return a basic nginx config to be used with the new php socket"
+
+read -r -p "Are you sure? [y/N] " response
+case "$response" in
+    [yY][eE][sS]|[yY]) 
+        echo "zfs create Sites/$1"
+	echo "adduser --disabled-password --home /Sites/$1/"
+	SITEROOT="/$POOL_NAME/$1/web"
+	sed "s~%PLACEHOLDER%~$1~g; s~%SITEURL%~$2~g; s~%SITEROOT%~$SITEROOT~g" nginx.template>>$NGINX_DIR/$1.conf
+	sed "s~%PLACEHOLDER%~$1~g; s~%SITEURL%~$2~g; s~%SITEROOT%~$SITEROOT~g" fpmtemplate.conf>>$FPM_DIR/$1.conf
+        ;;
+    *)
+        do_something_else
+        ;;
+esac
