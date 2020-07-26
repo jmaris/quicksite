@@ -36,8 +36,8 @@ echo "4. Return a basic nginx config to be used with the new php socket"
 read -r -p "Are you sure? [y/N] " response
 case "$response" in
     [yY][eE][sS]|[yY]) 
-        echo "zfs create Sites/$1"
-	echo "adduser --disabled-password --home /Sites/$1/"
+        zfs create $POOL_NAME/$1
+	adduser --disabled-password --home /$POOL_NAME/$1/
 	SITEROOT="/$POOL_NAME/$1/web"
 	sed "s~%PLACEHOLDER%~$1~g; s~%SITEURL%~$2~g; s~%SITEROOT%~$SITEROOT~g" nginx.template>>$NGINX_DIR/$1.conf
 	sed "s~%PLACEHOLDER%~$1~g; s~%SITEURL%~$2~g; s~%SITEROOT%~$SITEROOT~g" fpmtemplate.conf>>$FPM_DIR/$1.conf
